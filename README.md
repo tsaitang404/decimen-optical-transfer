@@ -29,6 +29,8 @@ Neither mode is encrypted: whatever is on the sending screen is readable by
 any camera pointed at it. The property this gives you is no network, not
 confidentiality — see [privacy](docs/user/privacy.md).
 
+**中文文档：[简体中文说明](README.zh-CN.md) · [中文文档目录](docs/README.zh-CN.md)**
+
 ## Documentation
 
 **Using it** — [quick start](docs/user/quick-start.md) ·

@@ -1,91 +1,69 @@
-# Decimen Optical Transfer: fountain-coded QR file transfer
+# Decimen Optical Transfer：喷泉码 QR 文件传输
 
-Send a file between two devices using nothing but a **screen and a camera**.
-One page displays the file as an endless stream of animated QR codes; another
-device points its camera at it and reconstructs the file. **No network path
-between the devices, no app, no pairing, no permissions beyond the camera.**
-The payload travels as light.
+只用**一块屏幕和一只摄像头**就能在两台设备之间传输文件。一个页面把文件显示为无限流动的动画 QR 码流，另一台设备用摄像头对准它，重建出文件。**设备之间没有网络路径，没有应用，没有配对，除摄像头外不需要任何权限。** 载荷以光的形式传播。
 
-## Try it
+**English: [English README](README.en.md) · [中文文档目录](docs/README.zh-CN.md)**
+
+## 试试看
 
 ### **→ [decimen.app](https://decimen.app/)**
 
-Open it on both devices and go — nothing to install. Works offline after the
-first visit, and installs as an app on both iOS and Android if you want it on
-a home screen.
+两台设备打开就能用——无需安装任何东西。首次访问后离线可用，如果想让它在主屏幕占个位置，iOS 和 Android 都可以安装为应用。
 
-Files up to 64 MB (or a pasted text snippet), filename and media type
-preserved, gzip only when it helps, SHA-256 verified before anything is
-offered — and received video plays right in the page. Extracted from a larger
-experiment that reached **128 KB/s phone-to-phone**.
+最大 64 MB 的文件（或粘贴的文本片段），保留文件名和媒体类型，仅在确实有用时启用 gzip，任何内容展示给用户前都经过 SHA-256 校验——收到的视频还能直接在页面里播放。这个项目是从一个更大的实验里提取出来的，那个实验达到了**手机对手机 128 KB/s**。
 
 <p align="center">
   <img src="docs/receiving.jpg" width="420"
-       alt="Phone receiving a file over light: 130.5 KB/s goodput, halfway through decoding the sender's animated QR stream" />
+       alt="手机通过光传输接收文件：130.5 KB/s 有效吞吐，解码发送端动画 QR 码流进行到一半" />
 </p>
-<p align="center"><em>Mid-transfer: a phone pulling a file out of the air at 130 KB/s.</em></p>
+<p align="center"><em>传输中途：手机以 130 KB/s 从空气中拉取一个文件。</em></p>
 
-Neither mode is encrypted: whatever is on the sending screen is readable by
-any camera pointed at it. The property this gives you is no network, not
-confidentiality — see [privacy](docs/user/privacy.md).
+两种模式都不加密：发送屏幕上显示的任何内容，任何对准它的摄像头都能看到。这个项目给你的是"无网络"，而不是"保密"——见[隐私](docs/user/privacy.zh-CN.md)。
 
-**中文文档：[简体中文说明](README.zh-CN.md) · [中文文档目录](docs/README.zh-CN.md)**
+## 文档
 
-## Documentation
+**使用** — [快速开始](docs/user/quick-start.zh-CN.md) ·
+[发送](docs/user/sending.zh-CN.md) · [接收](docs/user/receiving.zh-CN.md) ·
+[故障排查](docs/user/troubleshooting.zh-CN.md) ·
+[安装与离线](docs/user/install-and-offline.zh-CN.md) ·
+[隐私](docs/user/privacy.zh-CN.md)
 
-**Using it** — [quick start](docs/user/quick-start.md) ·
-[sending](docs/user/sending.md) · [receiving](docs/user/receiving.md) ·
-[troubleshooting](docs/user/troubleshooting.md) ·
-[install & offline](docs/user/install-and-offline.md) ·
-[privacy](docs/user/privacy.md)
+**原理** — [架构](docs/technical/architecture.zh-CN.md) ·
+[协议](docs/technical/protocol.zh-CN.md) ·
+[平台特性](docs/technical/platform-quirks.zh-CN.md) ·
+[构建与发布](docs/technical/build-and-release.zh-CN.md)
 
-**How it's built** — [architecture](docs/technical/architecture.md) ·
-[protocol](docs/technical/protocol.md) ·
-[platform quirks](docs/technical/platform-quirks.md) ·
-[build & release](docs/technical/build-and-release.md)
+协议的简短版：屏幕到摄像头的链路没有反向通道，所以发送端流式发送喷泉编码帧（[Luby transform](https://en.wikipedia.org/wiki/Luby_transform_code)）——接收端按任意顺序收集**任意**约 K·1.15 个不同帧，就能把文件剥出来。丢帧只损失时间，绝不影响正确性。
 
-The short version of the protocol: a screen-to-camera link has no
-back-channel, so the sender streams fountain-coded frames ([Luby
-transform](https://en.wikipedia.org/wiki/Luby_transform_code)) — the receiver
-collects *any* ~K·1.15 distinct frames in any order and peels the file out.
-Dropped frames cost time, never correctness.
-
-## Run it yourself
+## 自己运行
 
 ```bash
 npm install
-npm run dev               # https dev server with HMR
-npm run serve             # build, then serve the production bundle
-npm run demo              # demo mode: only the bundled payloads can be sent
-npm test                  # golden wire-format vectors and unit tests
-npm run build             # the hosted site → dist/
-npm run build:standalone  # both self-contained pages → dist-standalone/
-npm run build:all         # everything
+npm run dev               # 带 HMR 的 https 开发服务器
+npm run serve             # 构建，然后伺服生产包
+npm run demo              # 演示模式：只能发送内置载荷
+npm test                  # 金标准线上格式向量与单元测试
+npm run build             # 托管站点 → dist/
+npm run build:standalone  # 两个自包含页面 → dist-standalone/
+npm run build:all         # 全部
 ```
 
-Open `https://localhost:5173/send/` on the sending device and the printed
-`Network` URL on the receiving phone (accept the self-signed certificate
-once). Walkthrough: [quick start](docs/user/quick-start.md).
+在发送设备上打开 `https://localhost:5173/send/`，在接收手机上打开打印出来的 `Network` URL（自签名证书点一次通过即可）。完整流程：[快速开始](docs/user/quick-start.zh-CN.md)。
 
-## Similar projects
+## 类似项目
 
-The concept here was arrived at independently. It turns out several people
-have had similar ideas, and their takes are all worth a look:
+这里的思路是独立想出来的。事实证明有好几个人有类似想法，他们的方案都值得一看：
 
-- [mohankumarelec/airgapped-qr-code-transfer](https://github.com/mohankumarelec/airgapped-qr-code-transfer):
-  browser-based QR file transfer with compression and sequential chunking.
-  Discovered after publicly demoing this project; convergent evolution in
-  action.
-- [divan/txqr](https://github.com/divan/txqr) (2018): animated QR plus
-  fountain codes in Go, with two excellent write-ups on why fountain coding
-  beats sequential looping.
-- [sz3/libcimbar](https://github.com/sz3/libcimbar): goes past QR entirely
-  with a custom high-density color code purpose-built for this channel.
+- [mohankumarelec/airgapped-qr-code-transfer](https://github.com/mohankumarelec/airgapped-qr-code-transfer)：
+  基于浏览器的 QR 文件传输，带压缩和顺序分块。
+  在公开演示这个项目之后发现的；趋同演化。
+- [divan/txqr](https://github.com/divan/txqr)（2018）：Go 写的动画 QR 加喷泉码，有两篇关于"为什么喷泉编码胜过顺序循环"的精彩文章。
+- [sz3/libcimbar](https://github.com/sz3/libcimbar)：完全超越了 QR，用专门为这个信道设计的高密度彩色编码。
 
-Built by [Evan Crawley (Bash Alarmist)](https://www.linkedin.com/in/evan-crawley), with
-[node-qrcode](https://github.com/soldair/node-qrcode) and
-[zxing-wasm](https://github.com/Sec-ant/zxing-wasm).
+由 [Evan Crawley (Bash Alarmist)](https://www.linkedin.com/in/evan-crawley) 构建，使用了
+[node-qrcode](https://github.com/soldair/node-qrcode) 和
+[zxing-wasm](https://github.com/Sec-ant/zxing-wasm)。
 
-## License
+## 许可证
 
 MIT
